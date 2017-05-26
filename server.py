@@ -3,8 +3,9 @@ from flask import jsonify
 
 import ConfigParser
 
-from hardware.DoorLock import DoorLock
-from hardware.CardReader import CardReader
+from hardware import DoorLock, CardReader
+from data.members.MemberList import MemberList
+from data.members.MemberEntry import MemberEntry
 
 # initialize Flask app
 app = Flask(__name__)
@@ -13,7 +14,8 @@ app = Flask(__name__)
 config = ConfigParser.ConfigParser()
 config.read('door.ini')
 
-doorLock = DoorLock(config)
+doorLock = DoorLock.DoorLock(config)
+memberList = MemberList(config)
 
 @app.route('/')
 def welcome():
@@ -39,3 +41,25 @@ def door_lock():
 def door_unlock():
     doorLock.unlock()
     return door_status()
+
+@app.route('/members')
+@app.route('/members/list')
+def list_members():
+    members = memberList.list()
+    return jsonify({
+        "members": members,
+        "message": "There are %d members in the system" % (len(members))
+        })
+
+@app.route('/members/refresh')
+def refresh_members():
+    memberList.synchronizeWA()
+    return list_members()
+
+@app.route('/members/<id>')
+def get_member(id):
+    member = MemberEntry(config)
+    member.load( {"id":id} )
+    return jsonify({
+        "member": member.data
+        })
