@@ -29,3 +29,13 @@ def door_status():
         "status": doorLock.getStatus(),
         "message": "The door is %s" % (doorLock.getStatus(True))
         })
+
+@app.route('/door/lock')
+def door_lock():
+    doorLock.lock()
+    return door_status()
+
+@app.route('/door/unlock')
+def door_unlock():
+    doorLock.unlock()
+    return door_status()
