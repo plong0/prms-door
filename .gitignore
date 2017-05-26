@@ -1,2 +1,5 @@
 door.ini
 door.ini.prod
+*.pyc
+venv/
+.DS_Store
